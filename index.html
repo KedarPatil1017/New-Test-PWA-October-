@@ -8,7 +8,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
     <meta name="theme-color" content="#000000">
-    <meta name="color-scheme" content="dark">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icon-192-v2.png">
     <link rel="apple-touch-icon" href="icon-512-v2.png">
@@ -17,7 +16,7 @@
     <title>Study Manager</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" fetchpriority="high">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" async></script>
@@ -69,7 +68,6 @@
     <style>
         /* ── CSS Custom Properties ── */
         :root {
-            color-scheme: dark;
             --accent:      #4fc3f7;
             --accent-dark: #29b6f6;
             --accent-deep: #0288d1;
@@ -193,19 +191,8 @@
         .content { padding:8px 16px 16px; }
         .subjects-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
 
-        /* ── Entrance animations: pure CSS, compositor-driven (120 Hz) ──
-           Per-card delay via inline animation-delay; the compositor runs all
-           of them in parallel with zero main-thread cost per frame — the old
-           JS rAF chain mutated styles one card at a time and caused the
-           open-app stutter. `both` fill keeps cards hidden during the delay,
-           so no pre-hide flash is possible. */
-        @keyframes cardIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
-        .subject-card.anim-in { animation:cardIn 0.2s var(--anim-ease) both; }
-        @keyframes itemIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
-        .content-item-wrapper.anim-in { animation:itemIn 0.16s ease both; }
-
         /* ── Subject Card ── */
-        .subject-card { background:var(--bg-card); border-radius:14px; overflow:hidden; cursor:pointer; transition:transform 0.12s ease-out, opacity 0.15s ease; position:relative; user-select:none; -webkit-user-select:none; contain:layout style; content-visibility:auto; contain-intrinsic-size:auto 200px; -webkit-backface-visibility:hidden; backface-visibility:hidden; isolation:isolate; }
+        .subject-card { background:var(--bg-card); border-radius:14px; overflow:hidden; cursor:pointer; transition:transform 0.12s ease-out, opacity 0.15s ease; position:relative; user-select:none; -webkit-user-select:none; contain:layout style; will-change:transform,opacity; -webkit-backface-visibility:hidden; backface-visibility:hidden; isolation:isolate; }
         .subjects-grid { transition:opacity 0.08s ease; }
         .subject-card:active { transform:scale3d(0.97,0.97,1); }
         .subject-image { width:100%; height:130px; object-fit:cover; background:#222; display:block; }
@@ -214,7 +201,7 @@
         .subject-subtitle { font-size:0.78rem; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
         /* Edit/Delete/Drag buttons — hidden by default, shown on long-press */
-        .subject-actions { position:absolute; top:6px; right:6px; display:flex; gap:5px; opacity:0; pointer-events:none; transform:scale3d(0.85,0.85,1) translate3d(0,0,0); transition:opacity 0.15s ease-out, transform 0.15s ease-out; -webkit-backface-visibility:hidden; backface-visibility:hidden; contain:layout style; }
+        .subject-actions { position:absolute; top:6px; right:6px; display:flex; gap:5px; opacity:0; pointer-events:none; transform:scale3d(0.85,0.85,1) translate3d(0,0,0); transition:opacity 0.15s ease-out, transform 0.15s ease-out; will-change:opacity,transform; -webkit-backface-visibility:hidden; backface-visibility:hidden; contain:layout style; }
         .subject-card.long-pressed .subject-actions { opacity:1; pointer-events:all; transform:scale3d(1,1,1) translate3d(0,0,0); }
         .action-icon { width:42px; height:42px; border-radius:50%; background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); border:1px solid var(--glass-border); box-shadow:var(--glass-shadow); color:var(--text-primary); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:0.85rem; transition:background 0.15s; }
         @media (hover:hover) and (pointer:fine) {
@@ -227,7 +214,7 @@
         .subject-card.drag-over { outline:2px solid var(--accent); outline-offset:2px; transition:outline-color 0.1s ease, outline-offset 0.1s ease; }
 
         /* ── BOTTOM NAV ── */
-        .bottom-nav { position:fixed; bottom:0; left:0; right:0; width:100vw; min-height:calc(56px + var(--safe-bottom)); background:#16161a; border-top:1px solid var(--border-dim); display:flex; justify-content:space-around; align-items:stretch; padding:10px 0 var(--safe-bottom); z-index:9999; -webkit-backface-visibility:hidden; backface-visibility:hidden; transform:translateZ(0); box-sizing:border-box; flex-shrink:0; }
+        .bottom-nav { position:fixed; bottom:0; left:0; right:0; width:100vw; min-height:calc(56px + var(--safe-bottom)); background:#16161a; border-top:1px solid var(--border-dim); display:flex; justify-content:space-around; align-items:stretch; padding:10px 0 var(--safe-bottom); z-index:9999; -webkit-backface-visibility:hidden; backface-visibility:hidden; will-change:transform; transform:translateZ(0); box-sizing:border-box; flex-shrink:0; }
         .nav-item { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; color:var(--text-ghost); cursor:pointer; padding:4px 32px; transition:color 0.15s ease; background:none; border:none; font-family:inherit; min-height:44px; flex:1 0 0; max-width:50%; overflow:hidden; flex-shrink:0; }
         .nav-item:hover, .nav-item.active { color:var(--text-primary); }
         .nav-item i { font-size:1.4rem; line-height:1; flex-shrink:0; }
@@ -276,7 +263,7 @@
         .detail-header { display:none !important; }
         .back-btn { background:none; border:none; color:var(--text-primary); font-size:1.2rem; cursor:pointer; padding:4px; display:flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; }
         .detail-header-title { display:none; }
-        .detail-hero-image-wrap { width:100%; overflow:hidden; border-radius:0; margin:0; display:block; position:relative; height:calc(200px + var(--safe-top)); background:#111; }
+        .detail-hero-image-wrap { width:100%; overflow:hidden; border-radius:0; margin:0; display:block; position:relative; height:calc(200px + var(--safe-top)); background:#111; will-change:transform; }
         .detail-hero-image-wrap.has-image .detail-hero-placeholder { display:none; }
         .detail-hero-placeholder { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:4rem; background:#111; }
         .detail-hero-image { width:100%; height:100%; object-fit:cover; display:block; border-radius:0 !important; }
@@ -359,7 +346,7 @@
         .add-material-btn:hover { background:var(--accent-dark); }
         .material-list { display:flex; flex-direction:column; }
         .material-list-title, .material-list-divider, .material-chevron { display:none; }
-        .material-item { display:block; padding:0; border-bottom:1px solid var(--bg-surface); position:relative; content-visibility:auto; contain-intrinsic-size:auto 65px; }
+        .material-item { display:block; padding:0; border-bottom:1px solid var(--bg-surface); position:relative; }
         .material-item-row { display:flex; align-items:center; gap:10px; padding:12px 0; cursor:pointer; }
         .material-item:last-child { border-bottom:none; }
         .material-icon { width:40px; height:40px; border-radius:8px; background:transparent; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.85); font-size:1rem; flex-shrink:0; }
@@ -447,7 +434,7 @@
         .drag-handle:active { cursor:grabbing; color:var(--text-primary); }
 
         /* ── INLINE EDITING ── */
-        .content-item-wrapper { display:flex; flex-direction:column; content-visibility:auto; contain-intrinsic-size:auto 66px; }
+        .content-item-wrapper { display:flex; flex-direction:column; }
         .inline-rename-input { background:var(--bg-input); border:1px solid var(--accent); border-radius:6px; color:var(--text-primary); font-size:16px; padding:4px 8px; width:100%; font-family:inherit; outline:none; -webkit-appearance:none; }
         .replace-file-row { padding:6px 0 10px 56px; }
         .replace-file-label { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; background:var(--bg-surface); border:1px dashed #444; border-radius:8px; color:var(--accent); font-size:0.78rem; cursor:pointer; transition:border-color 0.2s var(--anim-ease), color 0.2s var(--anim-ease); }
@@ -1607,44 +1594,6 @@ var _cancelActiveStagger = null;
 //    the deferred rAF DOM update can complete (root cause of blank/stuck grid) ──
 var _displaySubjectsToken = 0;
 
-// ── Home grid cover thumbnails ────────────────────────────────────────────────
-// Same idea as _getSmallThumb below, but sized for the home grid: subject
-// cover images are typically full-resolution photos (often several MB of
-// base64), and squeezing one into a ~180×130px card still forces the browser
-// to decode the ENTIRE original bitmap for every card. With many subjects
-// that decoded memory piles up until mobile browsers start evicting bitmaps
-// under pressure and silently re-decoding them as they scroll back into view
-// — which is what showed up as black flashes on the cards while scrolling,
-// and as stutter while dragging (every re-decode blocks the main thread).
-// Shrinking each cover ONCE to a small JPEG keeps the total decoded footprint
-// tiny, so there is nothing left to evict or re-decode.
-var _gridThumbCache = {};
-function _getGridThumb(id, fullSrc, cb) {
-    if (!fullSrc) { cb(null); return; }
-    var entry = _gridThumbCache[id];
-    if (entry && entry.src === fullSrc) { cb(entry.thumb); return; }
-    var img = new Image();
-    img.onload = function() {
-        var thumb;
-        try {
-            var MAX = 480; // ≈2x the largest a card image is ever displayed
-            var scale = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
-            var w = Math.max(1, Math.round(img.naturalWidth  * scale));
-            var h = Math.max(1, Math.round(img.naturalHeight * scale));
-            var canvas = document.createElement('canvas');
-            canvas.width = w; canvas.height = h;
-            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            thumb = canvas.toDataURL('image/jpeg', 0.8);
-        } catch (e) {
-            thumb = fullSrc; // canvas unavailable — fall back to the original
-        }
-        _gridThumbCache[id] = { src: fullSrc, thumb: thumb };
-        cb(thumb);
-    };
-    img.onerror = function() { cb(fullSrc); };
-    img.src = fullSrc;
-}
-
 function displaySubjects(subjects, searchQuery) {
     // Cancel any in-flight stagger animation from a previous render immediately
     if (_cancelActiveStagger) { _cancelActiveStagger(); _cancelActiveStagger = null; }
@@ -1714,7 +1663,6 @@ function displaySubjects(subjects, searchQuery) {
 
     // Build/update cards and insert in correct order via DocumentFragment
     const frag = document.createDocumentFragment();
-    let _animIdx = 0; // entrance-stagger index for NEW cards only
     subjects.forEach(s => {
         let card = existingMap.get(s.id);
         if (card) {
@@ -1725,21 +1673,7 @@ function displaySubjects(subjects, searchQuery) {
             const imgEl      = card.querySelector('.subject-image');
             if (titleEl    && titleEl.textContent    !== s.title)               titleEl.textContent    = s.title;
             if (subtitleEl && subtitleEl.textContent !== (s.subtitle || s.title)) subtitleEl.textContent = s.subtitle || s.title;
-            // Cover image: swap only when the underlying image actually
-            // changed, and always display the small downscaled thumb — never
-            // keep the full-resolution original decoded in the grid.
-            const newFull = s.image || null;
-            if (imgEl && imgEl._fullSrc !== newFull) {
-                imgEl._fullSrc = newFull;
-                if (newFull) {
-                    _getGridThumb(s.id, newFull, function(t) {
-                        if (imgEl._fullSrc === newFull) { imgEl.src = t; card._gridThumbSrc = t; }
-                    });
-                } else {
-                    imgEl.src = defaultImg();
-                    card._gridThumbSrc = null;
-                }
-            }
+            _applyCardImage(imgEl, s.id, s.image || defaultImg());
             // Ensure the card is fully visible even if a previous render's
             // entrance animation was interrupted mid-flight (e.g. a search-reset
             // render racing with an async reload on back/home nav left this card
@@ -1765,24 +1699,12 @@ function displaySubjects(subjects, searchQuery) {
                 <button class="action-icon" data-testid="edit-subject-${s.id}"><i class="fas fa-pen"></i></button>
                 <button class="action-icon delete" data-testid="delete-subject-${s.id}"><i class="fas fa-trash"></i></button>
             </div>
-            <img src="${defaultImg()}" class="subject-image" alt="${s.title}" decoding="async">
+            <img class="subject-image" alt="${s.title}" decoding="async">
             <div class="subject-info"><div class="subject-title">${s.title}</div><div class="subject-subtitle">${s.subtitle || s.title}</div></div>`;
 
-        const handle = card.querySelector('.drag-handle-card');
+        _applyCardImage(card.querySelector('.subject-image'), s.id, s.image || defaultImg());
 
-        // Cover image: start from the tiny placeholder baked into the markup
-        // and swap in the small downscaled thumb as soon as it's ready
-        // (see _getGridThumb — full-res covers in the grid are what caused
-        // the black flashes while scrolling and the drag stutter).
-        const coverImgEl = card.querySelector('.subject-image');
-        if (coverImgEl) {
-            coverImgEl._fullSrc = s.image || null;
-            if (s.image) {
-                _getGridThumb(s.id, s.image, function(t) {
-                    if (coverImgEl._fullSrc === s.image) { coverImgEl.src = t; card._gridThumbSrc = t; }
-                });
-            }
-        }
+        const handle = card.querySelector('.drag-handle-card');
 
         // ── Long press: show action icons ──
         let lpTimer = null, touchMoved = false;
@@ -1856,13 +1778,11 @@ function displaySubjects(subjects, searchQuery) {
             openSubject(exactId, exactTitle);
         });
 
-        // Entrance is a pure CSS animation (see .anim-in) with a per-card
-        // animation-delay capped at 320 ms — the compositor runs every card
-        // in parallel instead of a JS rAF chain stepping through them, which
-        // is what made the grid stutter/blink when the app opened.
-        card.classList.add('anim-in');
-        card.style.animationDelay = Math.min(_animIdx * 18, 320) + 'ms';
-        _animIdx++;
+        // Mark and pre-hide new cards BEFORE they enter the DOM — prevents a
+        // one-frame white flash that occurred when opacity was set AFTER appendChild.
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(4px)';
+        card._isNew = true;
         frag.appendChild(card);
     });
 
@@ -1872,6 +1792,13 @@ function displaySubjects(subjects, searchQuery) {
     // window, which is what caused tiles to go missing/duplicate after rapid searching.
     grid.appendChild(frag);
 
+    // Animate only cards that were pre-hidden (new cards); existing cards stay untouched
+    const allCards = [...grid.querySelectorAll('.subject-card')];
+    const newCards = allCards.filter(w => w._isNew);
+    newCards.forEach(w => { w._isNew = false; });
+    _cancelActiveStagger = _rafStagger(newCards, function(w) {
+        w.style.opacity = '1'; w.style.transform = 'translateY(0)';
+    }, 16);
 }
 
 function saveSubjectsOrder() {
@@ -1894,8 +1821,6 @@ function setupTouchDragCard(card, handle, grid) {
     // every frame. A cheap point-in-rect scan against a handful of cached boxes is
     // effectively free by comparison.
     let _cardRects = null;
-    let _scrollComp = 0;        // total px auto-scrolled since _cardRects was cached
-    let _lastRectCompute = 0;   // timestamp of last rect cache — throttles re-caches
     function _computeCardRects() {
         const cards = grid.querySelectorAll('.subject-card');
         const rects = [];
@@ -1943,29 +1868,15 @@ function setupTouchDragCard(card, handle, grid) {
             const scroller = document.scrollingElement || document.documentElement || document.body;
             scroller.scrollTop += speed;
             scrolled = true;
-            // Track total scroll since the rect cache so hit-testing stays
-            // accurate between re-caches (see hitY below).
-            _scrollComp += speed;
         }
-        // Re-cache card rects at most every 90 ms during auto-scroll rather
-        // than on EVERY frame — a live getBoundingClientRect for every card
-        // each frame forces a full synchronous layout each frame, which was
-        // the main source of the drag jitter when dragging from the bottom
-        // of a long grid to the top (auto-scroll runs continuously there).
-        if (!_cardRects || (scrolled && now - _lastRectCompute > 90)) {
-            _cardRects = _computeCardRects();
-            _lastRectCompute = now;
-            _scrollComp = 0;
-        }
+        // Card positions only change when we scroll — re-cache just then, not every frame.
+        if (scrolled || !_cardRects) _cardRects = _computeCardRects();
 
-        // Hit-test against the cached rects — cheap point-in-box check, no
-        // page-wide hit-test. hitY compensates for auto-scroll that happened
-        // since the rects were cached (content moved, the cached boxes didn't).
-        const hitY = _cardLastCY + _scrollComp;
+        // Hit-test against the cached rects — cheap point-in-box check, no page-wide hit-test.
         let overCard = null;
         for (let i = 0; i < _cardRects.length; i++) {
             const r = _cardRects[i];
-            if (_cardLastCX >= r.left && _cardLastCX <= r.right && hitY >= r.top && hitY <= r.bottom) { overCard = r.el; break; }
+            if (_cardLastCX >= r.left && _cardLastCX <= r.right && _cardLastCY >= r.top && _cardLastCY <= r.bottom) { overCard = r.el; break; }
         }
         if (lastOver && lastOver !== overCard) lastOver.classList.remove('drag-over');
         if (overCard && overCard !== card) { overCard.classList.add('drag-over'); lastOver = overCard; }
@@ -1985,7 +1896,6 @@ function setupTouchDragCard(card, handle, grid) {
         _cardLastCX = t.clientX; _cardLastCY = t.clientY;
         _cardLastFrameTime = 0; // reset so this gesture's first frame doesn't inherit a stale delta
         _cardRects = _computeCardRects();
-        _scrollComp = 0; _lastRectCompute = 0;
         // Save original DOM position so we can restore if dropped with no target
         _origNextSibling = card.nextSibling;
         const rect = card.getBoundingClientRect();
@@ -1999,12 +1909,6 @@ function setupTouchDragCard(card, handle, grid) {
         const ghostInner = card.cloneNode(true);
         ghostInner.style.cssText += `opacity:0.85;transform:scale3d(1,1,1);transform-origin:center center;transition:transform 0.16s cubic-bezier(0.34,1.56,0.64,1);will-change:transform;box-shadow:0 8px 24px rgba(0,0,0,0.5);`;
         ghost.appendChild(ghostInner);
-        // Use the small cached cover thumb for the ghost — dragging a clone
-        // that carries the full-resolution image would keep a huge decoded
-        // bitmap + GPU texture alive for the whole drag, which was a major
-        // part of the drag jank.
-        const ghostCover = ghostInner.querySelector('.subject-image');
-        if (ghostCover && card._gridThumbSrc) ghostCover.src = card._gridThumbSrc;
         ghost._w = _ghostW; ghost._hh = _ghostHH; ghost._baseLeft = rect.left; ghost._baseTop = t.clientY - _ghostHH;
         document.body.appendChild(ghost);
         card.classList.add('dragging');
@@ -2403,7 +2307,7 @@ function searchContent() {
     const tx = db.transaction(['content'], 'readonly');
     tx.objectStore('content').index('subjectId').getAll(IDBKeyRange.only(currentSubjectId)).onsuccess = e => {
         let items = e.target.result.sort((a, b) => a.order - b.order);
-        if (q) items = items.filter(i => (i.name || '').toLowerCase().includes(q) || (i.type === 'text' && (i.content || '').toLowerCase().includes(q)));
+        if (q) items = items.filter(i => (i.name || '').toLowerCase().includes(q) || (i.content || '').toLowerCase().includes(q));
         displayContent(items);
     };
 }
@@ -2425,11 +2329,7 @@ function displayContent(items) {
         const wrapper = document.createElement('div');
         wrapper.className = 'content-item-wrapper';
         wrapper.setAttribute('data-id', item.id);
-        // Compositor-driven entrance (see .content-item-wrapper.anim-in CSS)
-        // — delay capped at 300 ms so long lists start instantly and stay
-        // smooth instead of queueing a per-row JS style mutation chain.
-        wrapper.classList.add('anim-in');
-        wrapper.style.animationDelay = Math.min(idx * 16, 300) + 'ms';
+        wrapper.style.cssText = 'opacity:0;transform:translateY(5px);transition:opacity 0.15s ease,transform 0.15s ease;';
         const dragHandle = `<div class="drag-handle" title="Drag to reorder"><i class="fas fa-grip-vertical"></i></div>`;
 
         if (item.type === 'image') {
@@ -2515,6 +2415,11 @@ function displayContent(items) {
 
     container.appendChild(frag);
 
+    // Staggered entrance animations after batch insertion — rAF-based to avoid layout thrash
+    var _animWrappers = [...container.querySelectorAll('.content-item-wrapper')];
+    _rafStagger(_animWrappers, function(w) {
+        w.style.opacity = '1'; w.style.transform = 'translateY(0)';
+    }, 18);
 }
 
 function escHtml(s)  { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -2813,16 +2718,14 @@ async function saveImageContent(event) {
     if (!files.length) { alert('Please select at least one image'); return; }
     const names = _getNamesFromList('imgName', files.length);
     let order = await getNextOrder();
-    // Read all files in parallel and write them in ONE transaction — one IDB
-    // commit instead of one commit per file, which makes adding many images
-    // at once dramatically faster.
-    const datas = await Promise.all(files.map(fileToBase64));
-    const tx = db.transaction(['content'], 'readwrite');
-    const store = tx.objectStore('content');
-    datas.forEach((data, i) => {
-        store.add({ subjectId: currentSubjectId, type: 'image', content: data, name: names[i], order: order + i, createdAt: new Date().toISOString() });
-    });
-    tx.oncomplete = () => { _invalidateMaterials(); _invalidateSubjectContent(currentSubjectId); closeAddImageModal(); loadContent(); };
+    const saveNext = async (i) => {
+        if (i >= files.length) { _invalidateMaterials(); _invalidateSubjectContent(currentSubjectId); closeAddImageModal(); loadContent(); return; }
+        const imageData = await fileToBase64(files[i]);
+        const tx = db.transaction(['content'], 'readwrite');
+        tx.objectStore('content').add({ subjectId: currentSubjectId, type: 'image', content: imageData, name: names[i], order: order + i, createdAt: new Date().toISOString() });
+        tx.oncomplete = () => saveNext(i + 1);
+    };
+    await saveNext(0);
 }
 
 function openAddPDFModal() {
@@ -2848,24 +2751,23 @@ async function savePDFContent(event) {
     if (!files.length) { alert('Please select at least one PDF'); return; }
     const names = _getNamesFromList('pdfNameItem', files.length);
     let order = await getNextOrder();
-    // Same optimization as images: parallel reads + a single transaction, with
-    // the thumbnail render queue fed afterwards.
-    const datas = await Promise.all(files.map(fileToBase64));
-    const thumbs = [];
-    const tx = db.transaction(['content'], 'readwrite');
-    const store = tx.objectStore('content');
-    datas.forEach((data, i) => {
-        const req = store.add({ subjectId: currentSubjectId, type: 'pdf', content: data, name: names[i], order: order + i, createdAt: new Date().toISOString() });
-        req.onsuccess = e => { thumbs.push([e.target.result, data]); };
-    });
-    tx.oncomplete = () => {
-        thumbs.forEach(function(pair) {
-            _pdfQueueRender(async () => {
-                try { await _renderAndSaveThumb(pair[1], pair[0], 44); } catch(ex) {}
-            });
-        });
-        _invalidateMaterials(); _invalidateSubjectContent(currentSubjectId); closeAddPDFModal(); loadContent();
+    const saveNext = async (i) => {
+        if (i >= files.length) { _invalidateMaterials(); _invalidateSubjectContent(currentSubjectId); closeAddPDFModal(); loadContent(); return; }
+        const pdfData = await fileToBase64(files[i]);
+        const tx = db.transaction(['content'], 'readwrite');
+        let newId = null;
+        const req = tx.objectStore('content').add({ subjectId: currentSubjectId, type: 'pdf', content: pdfData, name: names[i], order: order + i, createdAt: new Date().toISOString() });
+        req.onsuccess = e => { newId = e.target.result; };
+        tx.oncomplete = () => {
+            if (newId !== null) {
+                _pdfQueueRender(async () => {
+                    try { await _renderAndSaveThumb(pdfData, newId, 44); } catch(ex) {}
+                });
+            }
+            saveNext(i + 1);
+        };
     };
+    await saveNext(0);
 }
 
 function deleteContent(id) {
@@ -3288,6 +3190,91 @@ function _getSmallThumb(id, fullSrc, cb) {
     };
     img.onerror = function() { cb(fullSrc); };
     img.src = fullSrc;
+}
+
+// ── Home-screen tile cover images: right-sized, cached thumbnails ─────────────
+// Tile covers are often full-resolution photos (multi-MB base64) shown in a
+// ~180x130 box. Every tile then holds a huge decoded bitmap; phones evict those
+// under memory pressure and re-decode them asynchronously when scrolled back
+// into view — that's the black-tile flash on scroll. The same oversized image
+// is also cloned into the drag ghost, which is what made dragging large tiles
+// stutter. Fix: shrink each cover ONCE to roughly its on-screen pixel size
+// (never upscaled), reuse it everywhere on the home grid, and remember it
+// (memory + localStorage) so later launches don't even need to touch the
+// original. The original image data in the database is never modified.
+var _cardThumbCache = {};          // id -> { k: key, t: thumbDataUrl }
+var _cardThumbQueue = [], _cardThumbBusy = false, _cardThumbDirty = false, _cardThumbSaveTimer = null;
+try {
+    var _storedCardThumbs = JSON.parse(localStorage.getItem('cardThumbsV1') || '{}');
+    if (_storedCardThumbs && typeof _storedCardThumbs === 'object') _cardThumbCache = _storedCardThumbs;
+} catch (e) {}
+
+function _cardThumbKey(src) { return src.length + ':' + src.slice(-64); }
+
+function _persistCardThumbs() {
+    _cardThumbSaveTimer = null;
+    if (!_cardThumbDirty) return;
+    _cardThumbDirty = false;
+    try { localStorage.setItem('cardThumbsV1', JSON.stringify(_cardThumbCache)); } catch (e) { /* quota/blocked — memory cache still works */ }
+}
+
+function _pumpCardThumbs() {
+    var job = _cardThumbQueue.shift();
+    if (!job) {
+        _cardThumbBusy = false;
+        if (_cardThumbDirty && !_cardThumbSaveTimer) _cardThumbSaveTimer = setTimeout(_persistCardThumbs, 400);
+        return;
+    }
+    _cardThumbBusy = true;
+    var imgEl = job.imgEl;
+    // Image was changed/removed while waiting in the queue — skip it
+    if (!imgEl || imgEl._fullSrc !== job.fullSrc || !imgEl.isConnected) {
+        requestAnimationFrame(_pumpCardThumbs); return;
+    }
+    var im = new Image();
+    im.onload = function() {
+        try {
+            var TW = 520, TH = 380;   // ≈ tile box in device pixels (never upscaled below)
+            var scale = Math.min(1, Math.max(TW / im.naturalWidth, TH / im.naturalHeight));
+            if (scale >= 1) { imgEl.src = job.fullSrc; }
+            else {
+                var w = Math.max(1, Math.round(im.naturalWidth * scale)), h = Math.max(1, Math.round(im.naturalHeight * scale));
+                var canvas = document.createElement('canvas');
+                canvas.width = w; canvas.height = h;
+                var ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#222'; ctx.fillRect(0, 0, w, h);
+                ctx.drawImage(im, 0, 0, w, h);
+                var thumb = canvas.toDataURL('image/jpeg', 0.82);
+                canvas.width = canvas.height = 0;
+                _cardThumbCache[job.id] = { k: job.key, t: thumb };
+                _cardThumbDirty = true;
+                if (imgEl._fullSrc === job.fullSrc) imgEl.src = thumb;
+            }
+        } catch (e) { imgEl.src = job.fullSrc; }
+        im.onload = im.onerror = null; im.src = '';
+        requestAnimationFrame(_pumpCardThumbs);
+    };
+    im.onerror = function() {
+        if (imgEl._fullSrc === job.fullSrc) imgEl.src = job.fullSrc;
+        requestAnimationFrame(_pumpCardThumbs);
+    };
+    im.src = job.fullSrc;
+}
+
+// Points a tile's <img> at the right-sized thumbnail for `fullSrc`. Safe to call
+// on every render: does nothing when the image hasn't actually changed.
+function _applyCardImage(imgEl, id, fullSrc) {
+    if (!imgEl) return;
+    if (imgEl._fullSrc === fullSrc) return;
+    imgEl._fullSrc = fullSrc;
+    // Small images / the built-in placeholder are already cheap — use as-is
+    if (!fullSrc || fullSrc.length < 90000 || fullSrc.indexOf('data:image/svg') === 0) { imgEl.src = fullSrc; return; }
+    var key = _cardThumbKey(fullSrc), hit = _cardThumbCache[id];
+    if (hit && hit.k === key && hit.t) { imgEl.src = hit.t; return; }
+    imgEl.removeAttribute('src');   // tile shows its #222 backdrop until the thumb is ready
+    imgEl.style.color = 'transparent';   // keep the alt text from flashing while it builds
+    _cardThumbQueue.push({ imgEl: imgEl, id: id, fullSrc: fullSrc, key: key });
+    if (!_cardThumbBusy) { _cardThumbBusy = true; requestAnimationFrame(_pumpCardThumbs); }
 }
 
 // For short, bounded lists (Reorder Subjects / Copy-Move / Select sheets — at
@@ -4822,7 +4809,7 @@ function enterHomeSelectMode() {
         const imgEl   = card.querySelector('.subject-image');
         const title   = titleEl ? titleEl.textContent : 'Subject';
         const sub     = subEl   ? subEl.textContent   : '';
-        const imgSrc  = imgEl   ? imgEl.src            : '';
+        const imgSrc  = imgEl   ? (imgEl.src || imgEl._fullSrc || '') : '';
         const item = document.createElement('div');
         item.className = 'home-select-sheet-item';
         item.dataset.id = id;
@@ -5098,7 +5085,7 @@ function openReorderModal() {
         var title   = (card.querySelector('.subject-title')    || {}).textContent || '';
         var sub     = (card.querySelector('.subject-subtitle') || {}).textContent || '';
         var imgEl   = card.querySelector('.subject-image');
-        var imgSrc  = imgEl ? imgEl.src : '';
+        var imgSrc  = imgEl ? (imgEl.src || imgEl._fullSrc || '') : '';
 
         var item = document.createElement('div');
         item.className   = 'reorder-sheet-item';
@@ -5180,8 +5167,6 @@ function _setupReorderItemDrag(item) {
     // underneath, and the actual cause of the heavy lag reported earlier.
     var _cy = 0, _dragFrameRAF = null;
     var _itemRects = null;
-    var _rScrollComp = 0;      // total px auto-scrolled since _itemRects was cached
-    var _rLastRectCompute = 0; // timestamp of last rect cache — throttles re-caches
 
     function _computeItemRects() {
         var list = _el('reorderSheetList');
@@ -5197,7 +5182,7 @@ function _setupReorderItemDrag(item) {
         return rects;
     }
 
-    function _dragFrameLoop(now) {
+    function _dragFrameLoop() {
         if (!_reorderDragSrc || !_reorderGhost) { _dragFrameRAF = null; return; }
         try {
             var cy = _cy;
@@ -5211,32 +5196,21 @@ function _setupReorderItemDrag(item) {
                 var ZONE = 80, MAX_SPD = 12;
                 var fromTop = cy - lr.top, fromBot = lr.bottom - cy;
                 if (fromTop > 0 && fromTop < ZONE) {
-                    var dUp = Math.max(3, Math.round(MAX_SPD * (1 - fromTop / ZONE)));
-                    list.scrollTop -= dUp;
-                    _rScrollComp -= dUp;
+                    list.scrollTop -= Math.max(3, Math.round(MAX_SPD * (1 - fromTop / ZONE)));
                     scrolled = true;
                 } else if (fromBot > 0 && fromBot < ZONE) {
-                    var dDn = Math.max(3, Math.round(MAX_SPD * (1 - fromBot / ZONE)));
-                    list.scrollTop += dDn;
-                    _rScrollComp += dDn;
+                    list.scrollTop += Math.max(3, Math.round(MAX_SPD * (1 - fromBot / ZONE)));
                     scrolled = true;
                 }
             }
-            // Re-cache row rects at most every 90 ms during auto-scroll
-            // rather than on every frame — a live getBoundingClientRect for
-            // every row each frame forces a synchronous layout every frame.
-            if (!_itemRects || (scrolled && now - _rLastRectCompute > 90)) {
-                _itemRects = _computeItemRects();
-                _rLastRectCompute = now;
-                _rScrollComp = 0;
-            }
+            // Row positions only change when we scroll — re-cache just then, not every frame.
+            if (scrolled || !_itemRects) _itemRects = _computeItemRects();
 
             // Hit test against the cached rects — cheap arithmetic, no page-wide hit-test.
-            var hitY = cy + _rScrollComp;
             var overEntry = null;
             for (var i = 0; i < _itemRects.length; i++) {
                 var r = _itemRects[i];
-                if (hitY >= r.top && hitY <= r.bottom) { overEntry = r; break; }
+                if (cy >= r.top && cy <= r.bottom) { overEntry = r; break; }
             }
             if (_reorderDragOverEl && (!overEntry || _reorderDragOverEl !== overEntry.el)) {
                 _reorderDragOverEl.classList.remove('reorder-drag-over-top', 'reorder-drag-over-bottom');
@@ -5274,7 +5248,6 @@ function _setupReorderItemDrag(item) {
         var t    = e.touches[0];
         _cy = t.clientY;
         _itemRects = _computeItemRects();
-        _rScrollComp = 0; _rLastRectCompute = 0;
         _reorderGhost = item.cloneNode(true);
         _reorderGhost.className = 'reorder-sheet-item reorder-ghost';
         _reorderGhost.style.cssText =
@@ -5297,7 +5270,6 @@ function _setupReorderItemDrag(item) {
         if (!_reorderDragSrc) return;
         if (_dragFrameRAF) { cancelAnimationFrame(_dragFrameRAF); _dragFrameRAF = null; }
         _itemRects = null;
-        _rScrollComp = 0; _rLastRectCompute = 0;
 
         var src = _reorderDragSrc, ghost = _reorderGhost, overEl = _reorderDragOverEl, above = _reorderDragAbove;
         _reorderDragSrc = null; _reorderDragOverEl = null; _reorderGhost = null; _reorderDragAbove = false;

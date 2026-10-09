@@ -13,7 +13,7 @@
 //
 // Bump CACHE_VERSION whenever index.html (or anything in APP_SHELL) changes,
 // so returning visitors pick up the update instead of a stale cached copy.
-const CACHE_VERSION = 'v11';
+const CACHE_VERSION = 'v10';
 const SHELL_CACHE = `study-manager-shell-${CACHE_VERSION}`;
 const CDN_CACHE = `study-manager-cdn-${CACHE_VERSION}`;
 
